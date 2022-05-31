@@ -1,5 +1,5 @@
 import { Computer } from 'bitcoin-computer-lib';
-import Token from '../src/main';
+import { Bucket } from '../src/bucket';
 
 describe('Bitcoin Computer', () => {
   it('should export a function', () => {
@@ -15,10 +15,10 @@ describe('Bitcoin Computer', () => {
   });
 
   it('should create a Javascript object', () => {
-    expect(Token).toBeDefined();
-    expect(typeof Token).toBe('function');
+    expect(Bucket).toBeDefined();
+    expect(typeof Bucket).toBe('function');
 
-    const token = new Token('to', 3, 'test');
+    const token = new Bucket('to', 3, 'test');
     expect(token).toBeDefined();
   });
 
@@ -33,11 +33,12 @@ describe('Bitcoin Computer', () => {
     });
     const publicKeyString = computer.db.wallet.getPublicKey().toString()
 
-    const token = await computer.new(Token, [publicKeyString, 3, 'test']);
+    const token = await computer.new(Bucket, [publicKeyString, 3, 'test']);
     expect(token).toEqual({
       coins: 3,
       _owners: [publicKeyString],
       name: 'test',
+      symbol: '',
       _id: expect.any(String),
       _rev: expect.any(String),
       _root: expect.any(String),
@@ -62,12 +63,13 @@ describe('Bitcoin Computer', () => {
     });
     const publicKeyString2 = computer2.db.wallet.getPublicKey().toString()
 
-    const token = await computer.new(Token, [publicKeyString, 3, 'test']);
+    const token = await computer.new(Bucket, [publicKeyString, 3, 'test']);
     const newToken = await token.send(1, publicKeyString2);
     expect(token).toEqual({
       coins: 2,
       _owners: [publicKeyString],
       name: 'test',
+      symbol: '',
       _id: expect.any(String),
       _rev: expect.any(String),
       _root: expect.any(String),
@@ -77,6 +79,7 @@ describe('Bitcoin Computer', () => {
       coins: 1,
       _owners: [publicKeyString2],
       name: 'test',
+      symbol: '',
       _id: expect.any(String),
       _rev: expect.any(String),
       _root: expect.any(String),
