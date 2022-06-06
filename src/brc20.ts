@@ -1,16 +1,16 @@
-import { Bucket } from './bucket'
+import { TokenBag } from './tokenBag'
 
 export class BRC20 {
-  bucket: Bucket
+  tokenBag: TokenBag
   computer: any
 
-  constructor(bucket: Bucket, computer: any) {
-    this.bucket = bucket
+  constructor(tokenBag: TokenBag, computer: any) {
+    this.tokenBag = tokenBag
     this.computer = computer
   }
 
   send(amount, to) {
-    return this.bucket.send(amount, to)
+    return this.tokenBag.send(amount, to)
   }
 
   async balance(publicKeyString: string): Promise<number> {
@@ -22,7 +22,7 @@ export class BRC20 {
     //
     for(let i = 0; i < objects.length; i += 1) {
       const object = objects[i]
-      balance += object.coins
+      balance += object.tokens
     }
     return balance
   }
