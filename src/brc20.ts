@@ -13,17 +13,11 @@ export class BRC20 {
     return this.tokenBag.send(amount, to)
   }
 
-  async balance(publicKeyString: string): Promise<number> {
-    const revs = await this.computer.getRevs(publicKeyString)
+  async balance(publicKey: string): Promise<number> {
+    const revs = await this.computer.queryRevs({ publicKey })
     const objects = await Promise.all(
       revs.map(rev => this.computer.sync(rev))
     )
-    let balance = 0
-    //
-    for(let i = 0; i < objects.length; i += 1) {
-      const object = objects[i]
-      balance += object.tokens
-    }
-    return balance
+    return objects.reduce((prev, curr) => prev + curr.tokens, 0)
   }
 }
