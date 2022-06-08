@@ -19,14 +19,14 @@ describe('Bitcoin Computer', () => {
     expect(erc20).toBeDefined()
   })
 
-  it.only('should computer the balance', async () => {
+  it('should computer the balance', async () => {
     const computer = new Computer({
       seed: 'replace this seed',
 
       // uncomment to run locally
-      chain: 'BTC',
-      url: 'http://127.0.0.1:3000',
-      network: 'regtest'
+      // chain: 'BTC',
+      // url: 'http://127.0.0.1:3000',
+      // network: 'regtest'
     });
     const publicKeyString = computer.db.wallet.getPublicKey().toString()
 

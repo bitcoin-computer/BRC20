@@ -15,9 +15,9 @@ export class BRC20 {
 
   async balance(publicKey: string): Promise<number> {
     const revs = await this.computer.queryRevs({ publicKey })
-    const objects = await Promise.all(
+    const tokenBags = await Promise.all(
       revs.map(rev => this.computer.sync(rev))
     )
-    return objects.reduce((prev, curr) => prev + curr.tokens, 0)
+    return tokenBags.reduce((prev, curr) => prev + curr.tokens, 0)
   }
 }
