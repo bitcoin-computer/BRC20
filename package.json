@@ -29,6 +29,7 @@
     "build": "tsc -p tsconfig.release.json",
     "build:watch": "tsc -w -p tsconfig.release.json",
     "lint": "eslint --fix . --ext .ts,.tsx",
+    "types": "tsc",
     "test": "jest",
     "test:watch": "jest --watch"
   },

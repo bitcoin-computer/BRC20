@@ -1,39 +1,88 @@
 import { Computer } from 'bitcoin-computer-lib';
-import { BRC20 } from '../src/brc20';
-import { TokenBag } from '../src/tokenBag'
+import { BRC20 } from '../src/brc-20';
 
-describe('Bitcoin Computer', () => {
-  it('should create a new token', async () => {
-    const computer = new Computer({
-      seed: 'replace this seed',
+const opts = {
+  seed: 'replace this seed',
 
-      // uncomment to run locally
-      // chain: 'BTC',
-      // url: 'http://127.0.0.1:3000',
-      // network: 'regtest'
-    });
-    const publicKeyString = computer.db.wallet.getPublicKey().toString()
+  // uncomment to run locally
+  // chain: 'LTC',
+  // url: 'http://127.0.0.1:3000',
+  // network: 'regtest'
+}
 
-    const tokenBag = await computer.new(TokenBag, [publicKeyString, 3, 'test'])
-    const erc20 = new BRC20(tokenBag, computer)
-    expect(erc20).toBeDefined()
+describe('BRC20', () => {
+  describe('Constructor', () => {
+    it('Should create a new BRC20 object', async () => {
+      const computer = new Computer(opts)
+      const brc20 = new BRC20('test', 'TST', computer)
+      expect(brc20).toBeDefined()
+      expect(brc20).toEqual({
+        computer: expect.any(Object),
+        mintId: undefined,
+        name: 'test',
+        symbol: 'TST'
+      })
+    })
   })
 
-  it('should computer the balance', async () => {
-    const computer = new Computer({
-      seed: 'replace this seed',
+  describe('mint', () => {
+    it('Should mint tokens', async () => {
+      const computer = new Computer(opts)
+      const brc20 = new BRC20('test', 'TST', computer)
+      const publicKey = brc20.computer.db.wallet.getPublicKey().toString()
+      const rev = await brc20.mint(publicKey, 200)
+      expect(rev).toBeDefined()
+      expect(typeof rev).toBe('string')
+      expect(rev.length).toBeGreaterThan(64)
+    })
+  })
 
-      // uncomment to run locally
-      // chain: 'BTC',
-      // url: 'http://127.0.0.1:3000',
-      // network: 'regtest'
-    });
-    const publicKeyString = computer.db.wallet.getPublicKey().toString()
+  describe('totalSupply', () => {
+    it('Should return the supply of tokens', async () => {
+      const computer = new Computer(opts)
+      const brc20 = new BRC20('test', 'TST', computer)
+      const publicKey = brc20.computer.db.wallet.getPublicKey().toString()
+      await brc20.mint(publicKey, 200)
+      const supply = await brc20.totalSupply()
+      expect(supply).toBe(200)
+    })
+  })
 
-    const tokenBag = await computer.new(TokenBag, [publicKeyString, 3, 'test'])
-    const brc20 = new BRC20(tokenBag, computer)
-    expect(brc20).toBeDefined()
-    const balance = await brc20.balance(publicKeyString)
-    expect(typeof balance).toBe('number')
-  }, 20000)
+  describe('balanceOf', () => {
+    it('Should throw an error if the mint id is not set', async () => {
+      const computer = new Computer(opts);
+      const publicKeyString = computer.db.wallet.getPublicKey().toString()
+
+      const brc20 = new BRC20('test', 'TST', computer)
+      expect(brc20).toBeDefined()
+      try {
+        await brc20.balanceOf(publicKeyString)
+        expect(true).toBe('false')
+      } catch(err) {
+        expect(err.message).toBe('Please set a mint id.')
+      }
+    }, 40000)
+
+    it('Should computer the balance', async () => {
+      const computer = new Computer(opts)
+      const brc20 = new BRC20('test', 'TST', computer)
+      const publicKey = brc20.computer.db.wallet.getPublicKey().toString()
+      await brc20.mint(publicKey, 200)
+      const res = await brc20.balanceOf(publicKey)
+      expect(res).toBe(200)
+    }, 40000)
+  })
+
+  describe('transfer', () => {
+    it('Should transfer a token', async () => {
+      const computer = new Computer(opts)
+      const computer2 = new Computer()
+      const brc20 = new BRC20('test', 'TST', computer)
+      const publicKey = brc20.computer.db.wallet.getPublicKey().toString()
+      await brc20.mint(publicKey, 200)
+      await brc20.transfer(computer2.db.wallet.getPublicKey().toString(), 20)
+      const res = await brc20.balanceOf(publicKey)
+      expect(res).toBe(180)
+    }, 80000)
+  })
 })

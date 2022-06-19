@@ -11,7 +11,7 @@ export class TokenBag {
     this.symbol = symbol
   }
 
-  send(amount, to) {
+  transfer(to: string, amount: number): TokenBag {
     if (this.tokens < amount) throw new Error()
     this.tokens -= amount
     return new TokenBag(to, amount, this.name, this.symbol)
