@@ -2,12 +2,12 @@ import { Computer } from 'bitcoin-computer-lib'
 import { TokenBag } from '../src/token-bag'
 
 const opts = {
-  seed: 'replace this seed',
+  seed: 'bright word little amazing coast obvious',
 
   // uncomment to run locally
-  // chain: 'LTC',
-  // url: 'http://127.0.0.1:3000',
-  // network: 'regtest'
+  chain: 'LTC',
+  url: 'http://127.0.0.1:3000',
+  network: 'regtest',
 }
 
 describe('TokenBad', () => {

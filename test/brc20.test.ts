@@ -1,13 +1,13 @@
-import { Computer } from 'bitcoin-computer-lib';
-import { BRC20 } from '../src/brc-20';
+import { Computer } from 'bitcoin-computer-lib'
+import { BRC20 } from '../src/brc-20'
 
 const opts = {
-  seed: 'replace this seed',
+  seed: 'bright word little amazing coast obvious',
 
   // uncomment to run locally
-  // chain: 'LTC',
-  // url: 'http://127.0.0.1:3000',
-  // network: 'regtest'
+  chain: 'LTC',
+  url: 'http://127.0.0.1:3000',
+  network: 'regtest',
 }
 
 describe('BRC20', () => {
@@ -20,7 +20,7 @@ describe('BRC20', () => {
         computer: expect.any(Object),
         mintId: undefined,
         name: 'test',
-        symbol: 'TST'
+        symbol: 'TST',
       })
     })
   })
@@ -48,9 +48,9 @@ describe('BRC20', () => {
     })
   })
 
-  describe('balanceOf', () => {
+  describe.only('balanceOf', () => {
     it('Should throw an error if the mint id is not set', async () => {
-      const computer = new Computer(opts);
+      const computer = new Computer(opts)
       const publicKeyString = computer.db.wallet.getPublicKey().toString()
 
       const brc20 = new BRC20('test', 'TST', computer)
@@ -58,7 +58,7 @@ describe('BRC20', () => {
       try {
         await brc20.balanceOf(publicKeyString)
         expect(true).toBe('false')
-      } catch(err) {
+      } catch (err) {
         expect(err.message).toBe('Please set a mint id.')
       }
     }, 40000)

@@ -1,7 +1,10 @@
 export class TokenBag {
   tokens: number
+
   name: string
+
   symbol: string
+
   _owners: string[]
 
   constructor(to: string, supply: number, name: string, symbol = '') {

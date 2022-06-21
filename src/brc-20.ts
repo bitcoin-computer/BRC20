@@ -1,7 +1,11 @@
 import { Computer } from 'bitcoin-computer-lib'
 import { TokenBag } from './token-bag'
 
-export class BRC20 {
+interface IBRC20 {
+  mint(publicKey: string, amount: number): Promise<string>
+}
+
+export class BRC20 implements IBRC20 {
   name: string
   symbol: string
   computer: Computer
@@ -14,14 +18,15 @@ export class BRC20 {
     this.mintId = mintId
   }
 
-  async mint(publicKey: string, amount: number) {
+  async mint(publicKey: string, amount: number): Promise<string> {
     const args = [publicKey, amount, this.name, this.symbol]
     const tokenBag = await this.computer.new(TokenBag, args)
-    return this.mintId = tokenBag._root
+    this.mintId = tokenBag._root
+    return this.mintId
   }
 
   async totalSupply(): Promise<number> {
-    if(!this.mintId) throw new Error('Please set a mint id.')
+    if (!this.mintId) throw new Error('Please set a mint id.')
     const rootBag = await this.computer.sync(this.mintId)
     return rootBag.tokens
   }
@@ -30,12 +35,12 @@ export class BRC20 {
     if (!this.mintId) throw new Error('Please set a mint id.')
     const revs = await this.computer.queryRevs({
       contract: TokenBag,
-      publicKey
+      publicKey,
     })
-    const bags = await Promise.all(
-      revs.map(async (rev: string) => this.computer.sync(rev))
+    const bags = await Promise.all(revs.map(async (rev: string) => this.computer.sync(rev)))
+    return bags.flatMap((bag: TokenBag & { _root: string }) =>
+      bag._root === this.mintId ? [bag] : []
     )
-    return bags.flatMap(bag => bag._root === this.mintId ? [bag] : [])
   }
 
   async balanceOf(publicKey: string): Promise<number> {
@@ -44,15 +49,17 @@ export class BRC20 {
   }
 
   async transfer(to: string, amount: number) {
+    let _amount = amount
     const owner = this.computer.db.wallet.getPublicKey().toString()
     const bags = await this.getBags(owner)
-    while (amount > 0) {
+    const results = []
+    while (_amount > 0) {
       const [bag] = bags.splice(0, 1)
-      const available = Math.min(amount, bag.tokens)
-      await bag.transfer(to, available)
-      amount -= bag.tokens
+      const available = Math.min(_amount, bag.tokens)
+      results.push(bag.transfer(to, available))
+      _amount -= bag.tokens
     }
-    if (amount > 0)
-      throw ('Could not send entire amount')
+    if (_amount > 0) throw new Error('Could not send entire amount')
+    await Promise.all(results)
   }
 }
