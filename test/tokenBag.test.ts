@@ -2,7 +2,8 @@ import { Computer } from 'bitcoin-computer-lib'
 import { TokenBag } from '../src/token-bag'
 
 const opts = {
-  seed: 'bright word little amazing coast obvious',
+  // seed: 'bright word little amazing coast obvious',
+  seed: 'opera deputy attitude upset royal keep',
 
   // uncomment to run locally
   chain: 'LTC',

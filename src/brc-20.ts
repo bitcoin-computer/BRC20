@@ -3,6 +3,9 @@ import { TokenBag } from './token-bag'
 
 interface IBRC20 {
   mint(publicKey: string, amount: number): Promise<string>
+  totalSupply(): Promise<number>
+  balanceOf(publicKey: string): Promise<number>
+  transfer(to: string, amount: number): Promise<void>
 }
 
 export class BRC20 implements IBRC20 {
@@ -31,7 +34,7 @@ export class BRC20 implements IBRC20 {
     return rootBag.tokens
   }
 
-  async getBags(publicKey): Promise<TokenBag[]> {
+  private async getBags(publicKey): Promise<TokenBag[]> {
     if (!this.mintId) throw new Error('Please set a mint id.')
     const revs = await this.computer.queryRevs({
       contract: TokenBag,
@@ -48,7 +51,7 @@ export class BRC20 implements IBRC20 {
     return bags.reduce((prev, curr) => prev + curr.tokens, 0)
   }
 
-  async transfer(to: string, amount: number) {
+  async transfer(to: string, amount: number): Promise<void> {
     let _amount = amount
     const owner = this.computer.db.wallet.getPublicKey().toString()
     const bags = await this.getBags(owner)
